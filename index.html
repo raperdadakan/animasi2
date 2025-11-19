@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>3D Viewer</title>
+  <style>
+    body, html {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #canvas {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.164.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.164.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.164.0/examples/js/controls/OrbitControls.js"></script>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 100);
+    camera.position.set(2, 2, 4);
+
+    // Lighting Premium
+    const light1 = new THREE.DirectionalLight(0xffffff, 1.5);
+    light1.position.set(5, 5, 5);
+    scene.add(light1);
+
+    const light2 = new THREE.DirectionalLight(0xffffff, 0.7);
+    light2.position.set(-5, -5, -5);
+    scene.add(light2);
+
+    const ambient = new THREE.AmbientLight(0xffffff, 1);
+    scene.add(ambient);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 2;
+
+    const loader = new THREE.GLTFLoader();
+    loader.load(
+      "https://kptqqqgulipbxyhmgwbg.supabase.co/storage/v1/object/public/gambar/monster_energy_drink.glb",
+      (gltf) => {
+        const model = gltf.scene;
+        model.scale.set(1.2, 1.2, 1.2);
+        scene.add(model);
+
+        // Hover effect
+        window.addEventListener("mousemove", () => {
+          controls.autoRotate = false;
+        });
+        window.addEventListener("mouseout", () => {
+          controls.autoRotate = true;
+        });
+      }
+    );
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener("resize", () => {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+    });
+  </script>
+</body>
+</html>
